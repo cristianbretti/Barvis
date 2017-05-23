@@ -28,7 +28,28 @@ class App extends Component {
      
         request.end();
 
-      }
+    }
+
+    record(){
+        var recognition = new window.webkitSpeechRecognition();
+        
+        recognition.onstart = function(event) {
+                //updateRec();
+            };
+            recognition.onresult = function(event) {
+                var text = "";
+                for (var i = event.resultIndex; i < event.results.length; ++i) {
+                    text += event.results[i][0].transcript;
+                }
+                console.log(text);
+                
+            };
+            recognition.onend = function() {
+            
+            };
+            recognition.lang = "en-US";
+            recognition.start();
+    }
 
     render() {
         return (
@@ -38,7 +59,7 @@ class App extends Component {
                     <h2>Welcome to React</h2>
                 </div>
                 <div>
-                    <button onClick={this.test}>Click ME!</button>
+                    <button onClick={this.record}>Start Recording</button>
                 </div>
             </div>
         );
