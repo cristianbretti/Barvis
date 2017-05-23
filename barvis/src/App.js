@@ -5,21 +5,36 @@ import './App.css';
 var apiai = require('apiai');
 var app = apiai("73a62055c012487b9312db1d7ac7de61");
 
+
+
 class App extends Component {
 
     constructor(props){
         super(props);
-        this.test = this.test.bind(this);
-    }
+        this.state = {
+            inputString: "",
+            from: "",
+            to: ""
+        }
+        this.aiQuery = this.aiQuery.bind(this);
+        this.record = this.record.bind(this);
+    } 
 
-    test(){
-        console.log("TEST");
-        var request = app.textRequest('Next train from Näsby Alle to Täby', {
+
+    aiQuery (aiQueryText) {
+        var that = this;
+        this.setState({inputString: aiQueryText});
+
+        var request = app.textRequest(aiQueryText, {
             sessionId: '1'
         });
 
         request.on('response', function(response) {
             console.log(response);
+            var fromLocation = response.result.parameters.from;
+            var toLocation = response.result.parameters.to;
+
+            that.setState({from: fromLocation, to: toLocation});
         });
      
         request.on('error', function(error) {
@@ -27,28 +42,26 @@ class App extends Component {
         });
      
         request.end();
-
-    }
+}
 
     record(){
-        var recognition = new window.webkitSpeechRecognition();
+        var that = this;
+        var recognition = new window.webkitSpeechRecognition(this);
         
         recognition.onstart = function(event) {
                 //updateRec();
-            };
-            recognition.onresult = function(event) {
-                var text = "";
-                for (var i = event.resultIndex; i < event.results.length; ++i) {
-                    text += event.results[i][0].transcript;
-                }
-                console.log(text);
-                
-            };
-            recognition.onend = function() {
-            
-            };
-            recognition.lang = "en-US";
-            recognition.start();
+        };
+
+        recognition.onresult = function(event) {
+            var text = "";
+            for (var i = event.resultIndex; i < event.results.length; ++i) {
+                text += event.results[i][0].transcript;
+            }
+            console.log(text);
+            that.aiQuery(text);
+        };
+        recognition.lang = "sv-SE";
+        recognition.start();
     }
 
     render() {
@@ -60,6 +73,9 @@ class App extends Component {
                 </div>
                 <div>
                     <button onClick={this.record}>Start Recording</button>
+                    <h2>{this.state.inputString}</h2>
+                    <h3>{"Från: " + this.state.from}</h3>
+                    <h3>{"Till: " + this.state.to}</h3>
                 </div>
             </div>
         );
