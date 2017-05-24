@@ -20,6 +20,7 @@ class App extends Component {
         this.record = this.record.bind(this);
         this.slQueryLocation = this.slQueryLocation.bind(this);
         this.slQueryGetID = this.slQueryGetID.bind(this);
+        this.textToSpeech = this.textToSpeech.bind(this);
     } 
 
 
@@ -81,7 +82,8 @@ class App extends Component {
                 console.log(tripResponse);
                 var firstTripFirstLeg = tripResponse.data.Trip[0].LegList.Leg[0];
                 var resultString = "Linje: " + firstTripFirstLeg.transportNumber +
-                " Tid: " + firstTripFirstLeg.Origin.time + " Mot: " + firstTripFirstLeg.direction;
+                ", Tid: " + firstTripFirstLeg.Origin.time + ", Mot: " + firstTripFirstLeg.direction;
+                that.textToSpeech(resultString);
                 that.setState({resultString: resultString});
             })
         }));
@@ -97,6 +99,20 @@ class App extends Component {
         })
     }
 
+    test (){
+        this.textToSpeech(this.refs["testType"].value);
+    }
+
+    textToSpeech(text) {
+        var u1 = new SpeechSynthesisUtterance(text);
+        u1.lang = 'sv-SE';
+        u1.pitch = 1;
+        u1.rate = 1;
+        //u1.voiceURI = 'native';
+        u1.volume = 1;
+        speechSynthesis.speak(u1);
+    }
+
     render() {
         return (
             <div className="App">
@@ -110,6 +126,10 @@ class App extends Component {
                     <h3>{"Från: " + this.state.from}</h3>
                     <h3>{"Till: " + this.state.to}</h3>
                     <h2>{this.state.resultString}</h2>
+                </div>
+                <div>
+                    <input ref="testType" type="text"/>
+                    <button onClick={this.test.bind(this)}>Speak</button>
                 </div>
             </div>
         );
